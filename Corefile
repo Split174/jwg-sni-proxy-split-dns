@@ -1,0 +1,22 @@
+ru:53 {
+    forward . 1.1.1.1 8.8.8.8
+    cache 3600
+}
+
+xn--p1ai:53 {
+    forward . 1.1.1.1 8.8.8.8
+    cache 3600
+}
+
+# Всё остальное перехватываем
+.:53 {
+    template IN A {
+        match ".*"
+        answer "{{ .Name }} 60 IN A 10.8.0.1"
+    }
+    
+    template IN AAAA {
+        match ".*"
+        rcode NOERROR
+    }
+}
