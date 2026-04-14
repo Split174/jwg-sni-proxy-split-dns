@@ -8,6 +8,11 @@ xn--p1ai:53 {
     cache 3600
 }
 
+ipinfo.io ipwhois.io ifconfig.me ipify.org ip-api.com check-host.net:53 {
+    forward . 1.1.1.1 8.8.8.8
+    cache 3600
+}
+
 # Всё остальное перехватываем
 .:53 {
     template IN A {

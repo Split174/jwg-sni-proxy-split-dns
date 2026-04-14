@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # ==========================================
+  # 1. VPN Ядро
+  # ==========================================
   amnezia-wg:
     build: .
     container_name: jwg-server
@@ -15,12 +18,19 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - "31797:31797/udp"
+      - "51234:51234/udp"
     volumes:
       - ./data-jwg:/var/lib/jwg
     environment:
       - TZ=Europe/Moscow
+    logging:
+      options:
+        max-size: "200m"
+        max-file: "3"      
 
+  # ==========================================
+  # 2. DNS для роутинга трафика
+  # ==========================================
   coredns:
     image: coredns/coredns:latest
     container_name: coredns
@@ -31,7 +41,14 @@ services:
     command: -conf /Corefile
     depends_on:
       - amnezia-wg
+    logging:
+      options:
+        max-size: "200m"
+        max-file: "3"      
 
+  # ==========================================
+  # 3. Транзитный прокси для заблокированного
+  # ==========================================
   sni-proxy:
     image: nginx:alpine
     container_name: sni-proxy
@@ -41,3 +58,54 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - amnezia-wg
+    logging:
+      options:
+        max-size: "200m"
+        max-file: "3"
+  # ==========================================
+  # 4. Telegram MTProto Proxy (Публичный)
+  # ==========================================
+  telemt:
+    image: whn0thacked/telemt-docker:latest
+    container_name: telemt
+    restart: unless-stopped
+    
+    environment:
+      RUST_LOG: "info"
+      
+    volumes:
+      - ./telemt.toml:/etc/telemt.toml:ro
+
+    ports:
+      - "4443:4443/tcp"
+      - "127.0.0.1:9090:9090/tcp"
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=16m
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
