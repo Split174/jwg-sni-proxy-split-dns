@@ -10,7 +10,7 @@ xn--p1ai:53 {
 
 # ВК
 
-vk.com vk.me userapi.com vk-cdn.net vk-apps.com vk.cc:53 {
+vk.com vk.ru vk.company vk.design vk.link vk.me vk.cc userapi.com vkuser.net vk-portal.net vkuseraudio.net vkuseraudio.ru vkusercdn.ru vkuserlive.net vkuserphoto.ru vkuservideo.com vkuservideo.net vkuservideo.ru vkvideo.ru vk-cdn.me vk-cdn.net vk-cdn.ru vk-apps.com vk-apps.ru vk-analytics.ru vkcloud-static.ru mradx.net mvk.com:53 {
     forward . 1.1.1.1 8.8.8.8
     cache 3600 
 }
