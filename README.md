@@ -1,3 +1,5 @@
+# Мой диджитал резистанс набор. Amenzia-wg со split tunneling + telemt.
+
 Настройка на сервере:
 
 ```bash
