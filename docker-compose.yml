@@ -26,7 +26,7 @@ services:
     logging:
       options:
         max-size: "200m"
-        max-file: "3"      
+        max-file: "3"
 
   # ==========================================
   # 2. DNS для роутинга трафика
@@ -44,7 +44,7 @@ services:
     logging:
       options:
         max-size: "200m"
-        max-file: "3"      
+        max-file: "3"
 
   # ==========================================
   # 3. Транзитный прокси для заблокированного
@@ -69,10 +69,10 @@ services:
     image: whn0thacked/telemt-docker:latest
     container_name: telemt
     restart: unless-stopped
-    
+
     environment:
       RUST_LOG: "info"
-      
+
     volumes:
       - ./telemt.toml:/etc/telemt.toml:ro
 

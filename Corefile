@@ -1,35 +1,46 @@
-ru:53 {
-    forward . 1.1.1.1 8.8.8.8
+# Глобальный блок (опционально, но полезно логировать ошибки)
+(common_config) {
+    errors
     cache 3600
 }
 
-xn--p1ai:53 {
+ru xn--p1ai {
+    import common_config
+    # Если хотите зашифровать запросы от провайдера, раскомментируйте нижнюю строку и удалите обычный forward
+    # forward . tls://1.1.1.1 tls://8.8.8.8 { tls_servername cloudflare-dns.com }
     forward . 1.1.1.1 8.8.8.8
-    cache 3600
 }
 
 # ВК
-
-vk.com vk.ru vk.company vk.design vk.link vk.me vk.cc userapi.com vkuser.net vk-portal.net vkuseraudio.net vkuseraudio.ru vkusercdn.ru vkuserlive.net vkuserphoto.ru vkuservideo.com vkuservideo.net vkuservideo.ru vkvideo.ru vk-cdn.me vk-cdn.net vk-cdn.ru vk-apps.com vk-apps.ru vk-analytics.ru vkcloud-static.ru mradx.net mvk.com:53 {
+vk.com vk.ru vk.company vk.design vk.link vk.me vk.cc userapi.com vkuser.net vk-portal.net vkuseraudio.net vkuseraudio.ru vkusercdn.ru vkuserlive.net vkuserphoto.ru vkuservideo.com vkuservideo.net vkuservideo.ru vkvideo.ru vk-cdn.me vk-cdn.net vk-cdn.ru vk-apps.com vk-apps.ru vk-analytics.ru vkcloud-static.ru mradx.net mvk.com {
+    import common_config
     forward . 1.1.1.1 8.8.8.8
-    cache 3600 
 }
 
-# определялки ip
-
-ipinfo.io ipwhois.io ifconfig.me ipify.org ip-api.com check-host.net:53 {
+# Определялки IP
+ipinfo.io ipwhois.io ifconfig.me ipify.org ip-api.com check-host.net {
+    import common_config
     forward . 1.1.1.1 8.8.8.8
-    cache 3600
 }
 
-# Всё остальное перехватываем
-.:53 {
+# Всё остальное перехватываем (VPN-туннель)
+. {
+    errors
+    
+    # 1. Отдаем IP туннеля/прокси для A-записей
     template IN A {
         match ".*"
         answer "{{ .Name }} 60 IN A 10.8.0.1"
     }
     
+    # 2. Глушим IPv6 (чтобы трафик не утек мимо туннеля)
     template IN AAAA {
+        match ".*"
+        rcode NOERROR
+    }
+
+    # 3. Глушим всё остальное (HTTPS, TXT, MX), чтобы не было SERVFAIL на iOS/macOS
+    template ANY ANY {
         match ".*"
         rcode NOERROR
     }
